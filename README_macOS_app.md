@@ -6,3 +6,4 @@ I found that I needed this app, and moreover I needed it for someone who is not 
 
 This app basically is a GUI wrapper around the command-line tool, and bundles all the shared library pieces in with the app, so it can be installed stand-alone.
 
+See mac_gui/README.md for details on how to build the app yourself.
