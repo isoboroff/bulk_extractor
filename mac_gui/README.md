@@ -81,6 +81,17 @@ This will:
 4. Bundle and relocate all dynamic libraries (`.dylib`) into `Contents/Frameworks/`.
 5. Code-sign the bundle for macOS.
 
+### Creating a Drag-and-Drop Disk Image (DMG)
+
+To package the built app into a `.dmg` with a drag-and-drop link to `/Applications`:
+
+```bash
+cd mac_gui
+./create_dmg.sh
+```
+
+The resulting `BulkExtractor-2.2.0-macOS.dmg` will be placed in `mac_gui/build/`.
+
 ### Running the App
 
 To open the built app directly:

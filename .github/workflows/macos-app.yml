@@ -1,33 +1,54 @@
-name: macOS App Build & Test
+name: macOS App Build & DMG Release
 
 on:
   push:
     branches: ['**']
+    tags: ['v*']
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build-and-test:
-    name: Build & Test macOS App (Apple Silicon)
+  build-and-package:
+    name: Build, Package & DMG (macOS)
     runs-on: macos-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
+      - name: Install Dependencies & Tools
         run: |
           brew update
-          brew install autoconf automake libtool libxml2 libewf exiv2 json-c re2 abseil pkg-config
+          brew install autoconf automake libtool libxml2 libewf exiv2 json-c re2 abseil pkg-config create-dmg
           echo "/opt/homebrew/opt/libtool/libexec/gnubin" >> $GITHUB_PATH
           echo "/opt/homebrew/opt/libxml2/bin" >> $GITHUB_PATH
           echo "LDFLAGS=-L/opt/homebrew/lib -L/opt/homebrew/opt/libxml2/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I/opt/homebrew/include -I/opt/homebrew/opt/libxml2/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/opt/homebrew/opt/libxml2/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Set up Apple Developer ID Signing (Optional)
+        if: env.MACOS_CERTIFICATE != ''
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD || 'temporary_ci_keychain_pwd' }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          CERT_PATH=$RUNNER_TEMP/certificate.p12
+          echo "$MACOS_CERTIFICATE" | base64 --decode > "$CERT_PATH"
+          security import "$CERT_PATH" -P "$MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+
+          echo "CODESIGN_IDENTITY=${{ secrets.DEVELOPER_ID_APPLICATION }}" >> $GITHUB_ENV
 
       - name: Bootstrap and Build C++ Core
         run: |
@@ -43,22 +64,43 @@ jobs:
       - name: Build and Bundle Standalone macOS App
         run: |
           cd mac_gui
-          chmod +x build_app.sh bundle_dependencies.py
+          chmod +x build_app.sh bundle_dependencies.py create_dmg.sh
           ./build_app.sh
 
-      - name: Verify Bundled App Standalone Execution
+      - name: Create Drag-and-Drop Disk Image (DMG)
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
-          ./mac_gui/build/BulkExtractor.app/Contents/Helpers/bulk_extractor -V
-          ./mac_gui/build/BulkExtractor.app/Contents/Helpers/bulk_extractor -H
+          cd mac_gui
+          ./create_dmg.sh
 
       - name: Create Zip Archive
         run: |
           cd mac_gui/build
           ditto -c -k --sequesterRsrc --keepParent BulkExtractor.app BulkExtractor-macOS.zip
 
-      - name: Upload macOS App Artifact
+      - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BulkExtractor-macOS-App
+          name: BulkExtractor-macOS-DMG
+          path: mac_gui/build/*.dmg
+          retention-days: 14
+
+      - name: Upload Zip Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BulkExtractor-macOS-Zip
           path: mac_gui/build/BulkExtractor-macOS.zip
           retention-days: 14
+
+      - name: Attach DMG to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            mac_gui/build/*.dmg
+            mac_gui/build/BulkExtractor-macOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
