@@ -3,7 +3,10 @@ name: macOS App Build & DMG Release
 on:
   push:
     branches: ['**']
-    tags: ['v*']
+    tags:
+      - 'v*-mac*'
+      - 'v*-*'
+      - 'mac-*'
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
