@@ -5,6 +5,7 @@ import Combine
 public enum SidebarTab: String, CaseIterable, Identifiable {
     case scan = "New Scan"
     case active = "Live Scan"
+    case diskImager = "Disk Imager"
     case results = "Extracted Features"
     case histograms = "Histograms"
     case report = "DFXML Summary"
@@ -17,6 +18,7 @@ public enum SidebarTab: String, CaseIterable, Identifiable {
         switch self {
         case .scan: return "play.circle.fill"
         case .active: return "waveform.path.ecg"
+        case .diskImager: return "externaldrive.badge.plus"
         case .results: return "doc.text.magnifyingglass"
         case .histograms: return "chart.bar.fill"
         case .report: return "doc.badge.gearshape"

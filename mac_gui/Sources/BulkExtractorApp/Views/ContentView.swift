@@ -20,6 +20,8 @@ public struct ContentView: View {
                 ScanSetupView(appState: appState)
             case .active:
                 ActiveScanView(appState: appState)
+            case .diskImager:
+                DiskImagerView(appState: appState)
             case .results:
                 ResultsView(appState: appState)
             case .histograms:

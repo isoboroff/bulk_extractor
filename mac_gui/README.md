@@ -32,6 +32,12 @@ A modern, standalone macOS graphical application for `bulk_extractor` built with
 - **📑 DFXML Provenance & Report Summary:**
   - Summary of `report.xml`: execution duration, version, total bytes processed, and feature counts.
 
+- **💾 Built-in Forensic Disk Imager:**
+  - Directly image physical CF cards, SD cards, and USB drives using `dd` with administrator authentication.
+  - Automatically discovers attached removable drives and character devices (`/dev/rdisk*`).
+  - Real-time imaging progress bar, transfer rate (MB/s), and ETA.
+  - One-click loop back to the Scan Setup page with the created image.
+
 - **🔍 Forensic Path Inspector (`-p`):**
   - Extract and inspect exact byte sequences, compressed streams, or forensic paths with hexadecimal dumps or raw stream extraction.
 

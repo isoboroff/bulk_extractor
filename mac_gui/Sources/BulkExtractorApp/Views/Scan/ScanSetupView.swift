@@ -34,8 +34,19 @@ public struct ScanSetupView: View {
                             }
                         )
                         
-                        Toggle("Scan target recursively as a directory of files (-R)", isOn: $appState.scanConfig.isDirectory)
-                            .font(.callout)
+                        HStack {
+                            Toggle("Scan target recursively as a directory of files (-R)", isOn: $appState.scanConfig.isDirectory)
+                                .font(.callout)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                appState.selectedTab = .diskImager
+                            }) {
+                                Label("Image Physical Card / Drive…", systemImage: "externaldrive.badge.plus")
+                            }
+                            .controlSize(.small)
+                        }
                     }
                     .padding(8)
                 }
