@@ -1,8 +1,6 @@
 name: Create source distribution
 
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
