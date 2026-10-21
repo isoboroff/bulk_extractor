@@ -58,6 +58,7 @@ missing
 out-*/
 out?/
 out??/
+test-extract/
 python/Makefile
 python/cda2_tool.db
 regress-*
