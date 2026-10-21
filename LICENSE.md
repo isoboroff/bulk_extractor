@@ -46,6 +46,8 @@ Licensed under the MIT License
 
 Licensed under General Public License version 3 and later
 
+* mac_gui/ (macOS graphical application) is Copyright (C) 2026 Ian Soboroff
+
 * src/pyxpress.c is Copyright 2008 (C) Matthieu Suiche. <msuiche[at]gmail.com>
 
 
