@@ -69,6 +69,7 @@ jobs:
 
       - name: Create Drag-and-Drop Disk Image (DMG)
         env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -95,10 +96,25 @@ jobs:
           path: mac_gui/build/BulkExtractor-macOS.zip
           retention-days: 14
 
-      - name: Attach DMG to GitHub Release
+      - name: Publish GitHub Release (Version Tags Only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
+          name: Bulk Extractor macOS ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ### Bulk Extractor for macOS (${{ github.ref_name }})
+
+            Standalone drag-and-drop macOS application for `bulk_extractor`.
+
+            #### Installation
+            1. Download the attached `.dmg` file below.
+            2. Double-click to open and drag **BulkExtractor** into your **Applications** folder.
+            3. Launch **Bulk Extractor** from `/Applications` or Spotlight.
+
+            *(Built and packaged with GitHub Actions on macOS Apple Silicon)*
           files: |
             mac_gui/build/*.dmg
             mac_gui/build/BulkExtractor-macOS.zip

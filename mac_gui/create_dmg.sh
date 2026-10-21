@@ -11,9 +11,12 @@ if [[ ! -d "$APP_BUNDLE" ]]; then
     "$SCRIPT_DIR/build_app.sh"
 fi
 
-# Detect version
-VERSION="$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || echo "2.2.0")"
-DMG_NAME="BulkExtractor-${VERSION}-macOS.dmg"
+# Detect version or tag
+DETECTED_VER="$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || echo "2.2.0")"
+VERSION="${RELEASE_TAG:-$DETECTED_VER}"
+# Strip leading 'v' if present for clean DMG naming
+CLEAN_VER="${VERSION#v}"
+DMG_NAME="BulkExtractor-${CLEAN_VER}-macOS.dmg"
 DMG_PATH="$BUILD_DIR/$DMG_NAME"
 
 echo "=================================================="
