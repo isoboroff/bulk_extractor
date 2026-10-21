@@ -43,6 +43,28 @@ A modern, standalone macOS graphical application for `bulk_extractor` built with
 
 ## Building and Bundling
 
+### Prerequisites
+
+Before building the Mac app, ensure you have:
+1. **Xcode and Command Line Tools** with the Swift compiler:
+   ```bash
+   xcode-select --install
+   ```
+2. **Core Dependencies (Homebrew)** for building `bulk_extractor`:
+   ```bash
+   brew install autoconf automake libtool libxml2 libewf exiv2 json-c re2 abseil pkg-config
+   ```
+   *(Alternatively, run `echo "" | bash etc/CONFIGURE_MACOS.bash` from the repository root).*
+
+3. **Verify the Command-Line Build First:**
+   It is recommended to test build and verify the command-line tool from the repository root first:
+   ```bash
+   ./bootstrap.sh
+   ./configure
+   make -j
+   make check
+   ```
+
 ### Quick Build (One Command)
 
 From the repository root or `mac_gui` directory, run:
