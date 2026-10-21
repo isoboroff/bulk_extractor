@@ -757,7 +757,7 @@ void Unpack::UnpWriteData(byte *Data,size_t Size)
 
 bool Unpack::ReadTables()
 {
-  byte BitLength[BC];
+  byte BitLength[LARGEST_TABLE_SIZE];
   byte Table[HUFF_TABLE_SIZE];
   if (InAddr>ReadTop-25)
     if (!UnpReadBuf())
@@ -794,7 +794,7 @@ bool Unpack::ReadTables()
         const int remaining=BC-I;
         if (ZeroCount>remaining)
           ZeroCount=remaining;
-        while (ZeroCount-- > 0)
+        while (ZeroCount-- > 0 && I < BC)
           BitLength[I++]=0;
         I--;
       }
